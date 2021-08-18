@@ -1,4 +1,4 @@
-## MOEX-rate-script
+## moex-rate-script
 The script goes to the site https://www.moex.com/ using selenium.  
 Gets the dollar and euro exchange rates for the current month in xml.  
 Parses xml, writes data to excel file.  

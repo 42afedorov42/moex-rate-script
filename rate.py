@@ -8,10 +8,20 @@ from lxml import etree
 import urllib.request
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
+from sys import platform
 
 
 def get_rate_xml_url():
-    geckodriver = os.path.abspath('geckodriver')
+    """Go to the site www.moex.com go to the "Indicative exchange rates" section 
+    to get links to xml with the exchange rate.
+    
+    """
+    if platform == "linux" or platform == "linux2":
+        geckodriver = os.path.abspath(f'drivers/geckodriver_linux')
+    elif platform == "darwin":
+        geckodriver = os.path.abspath(f'drivers/geckodriver_macos')
+    elif platform == "win32":
+        geckodriver = os.path.abspath(f'drivers/geckodriver_windows')
     browser = webdriver.Firefox(executable_path=geckodriver)
     browser.maximize_window()
     browser.delete_all_cookies()
@@ -78,12 +88,14 @@ def get_rate_xml_url():
 
 
 def read_xml(url):
+    """Reading data from a url to an xml file with the currency exchange rate."""
     web_file = urllib.request.urlopen(url)
     data = web_file.read()
     return data
 
 
 def parse(xml_data):
+    """Parsing an xml file with the currency exchange rate."""
     exchange_rates = []
     currency_row = ()
     root = etree.fromstring(xml_data)
@@ -112,6 +124,7 @@ def parse(xml_data):
 
 
 def dividing_eur_by_usd(eur, usd):
+    """Dividing the Euro by the Dollar."""
     divide = [str(float(e)/float(u)) for e, u in zip(eur[1], usd[1])]
     exchange_rates = usd + eur
     exchange_rates.append(divide)
@@ -119,6 +132,7 @@ def dividing_eur_by_usd(eur, usd):
 
 
 def create_xlsx_report(exchange_rates_usd_eur):
+    """Recording the exchange rate in an excel file"""
     current_date = datetime.now().strftime("%m-%Y")
     workbook = xlsxwriter.Workbook(f'exchange_rates_{current_date}.xlsx')
     worksheet = workbook.add_worksheet('exchange rates')
@@ -154,6 +168,7 @@ def create_xlsx_report(exchange_rates_usd_eur):
 
 
 def decline(number: int):
+    """Declension of the word 'string'"""
     row_declines = ['строка', 'строки', 'строк']
     cases = [ 2, 0, 1, 1, 1, 2 ]
     if 4 < number % 100 < 20:
@@ -166,6 +181,7 @@ def decline(number: int):
 
 
 def send_email(number_rows):
+    """Sending an email with an excel file and the number of rows."""
     load_dotenv('.env')
     current_date = datetime.now().strftime("%m-%Y")
     decline_row = decline(number_rows)
